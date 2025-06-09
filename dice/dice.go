@@ -44,7 +44,7 @@ func (p *DicePool) Remove(face int) bool {
 }
 
 func (p *DicePool) Score() (int, error) {
-	return score.Calculate(*p, false)
+	return score.Calculate([][]int{}, false)
 }
 
 func (p *DicePool) RenderCharacters() string {
