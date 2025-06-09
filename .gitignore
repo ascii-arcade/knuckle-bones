@@ -1,0 +1,5 @@
+"wish-template"
+*.log
+__debug*
+bin/
+.ssh/

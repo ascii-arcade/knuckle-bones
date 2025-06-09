@@ -1,0 +1,8 @@
+docker-compose.yml
+Dockerfile
+.vscode
+.git
+.gitignore
+makefile
+__debug*
+.ssh

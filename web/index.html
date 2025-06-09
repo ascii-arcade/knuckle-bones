@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="https://cdn.jsdelivr.net/npm/beercss@3.11.11/dist/cdn/beer.min.css" rel="stylesheet" />
+    <script type="module" src="https://cdn.jsdelivr.net/npm/beercss@3.11.11/dist/cdn/beer.min.js"></script>
+    <script type="module"
+        src="https://cdn.jsdelivr.net/npm/material-dynamic-colors@1.1.2/dist/cdn/material-dynamic-colors.min.js"></script>
+    <!-- <link rel="stylesheet" href="assets/style.css"> -->
+</head>
+
+<body>
+    <nav class="left">
+        <a>
+            <i>home</i>
+            <div>Home</div>
+        </a>
+    </nav>
+    <main class="responsive">
+        <div class="grid left-align">
+            <article class="s6 m3 l2">
+                <h2>{{ .TotalGames }}</h2>
+                <div>Total Games</div>
+            </article>
+            <article class="s6 m3 l2">
+                <h2>{{ .TotalStartedGames }}</h2>
+                <div>Total Running</div>
+            </article>
+            <article class="s6 m3 l2">
+                <h2>{{ .TotalUniquePlayers }}</h2>
+                <div>Unique Players</div>
+            </article>
+            <article class="s6 m3 l2">
+                <h2>{{ .TotalConnectedPlayers }}</h2>
+                <div>Connected Players</div>
+            </article>
+        </div>
+    </main>
+</body>
+
+</html>
