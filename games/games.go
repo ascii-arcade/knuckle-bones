@@ -3,7 +3,7 @@ package games
 import (
 	"errors"
 
-	"github.com/ascii-arcade/game-template/generaterandom"
+	"github.com/ascii-arcade/knuckle-bones/generaterandom"
 )
 
 var (

@@ -4,7 +4,7 @@ import (
 	"cmp"
 	"os"
 
-	"github.com/ascii-arcade/game-template/language"
+	"github.com/ascii-arcade/knuckle-bones/language"
 	"github.com/charmbracelet/log"
 )
 

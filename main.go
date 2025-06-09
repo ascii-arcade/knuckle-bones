@@ -9,9 +9,9 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/ascii-arcade/game-template/app"
-	"github.com/ascii-arcade/game-template/config"
-	"github.com/ascii-arcade/game-template/web"
+	"github.com/ascii-arcade/knuckle-bones/app"
+	"github.com/ascii-arcade/knuckle-bones/config"
+	"github.com/ascii-arcade/knuckle-bones/web"
 	"github.com/charmbracelet/log"
 	"github.com/charmbracelet/ssh"
 	"github.com/charmbracelet/wish"

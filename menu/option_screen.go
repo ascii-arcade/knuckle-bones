@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/ascii-arcade/game-template/games"
-	"github.com/ascii-arcade/game-template/keys"
-	"github.com/ascii-arcade/game-template/language"
-	"github.com/ascii-arcade/game-template/messages"
-	"github.com/ascii-arcade/game-template/screen"
+	"github.com/ascii-arcade/knuckle-bones/games"
+	"github.com/ascii-arcade/knuckle-bones/keys"
+	"github.com/ascii-arcade/knuckle-bones/language"
+	"github.com/ascii-arcade/knuckle-bones/messages"
+	"github.com/ascii-arcade/knuckle-bones/screen"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )

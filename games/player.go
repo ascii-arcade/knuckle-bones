@@ -3,7 +3,7 @@ package games
 import (
 	"context"
 
-	"github.com/ascii-arcade/game-template/language"
+	"github.com/ascii-arcade/knuckle-bones/language"
 	"github.com/charmbracelet/ssh"
 )
 
