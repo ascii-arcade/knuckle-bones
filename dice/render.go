@@ -16,14 +16,18 @@ var (
 		6: "⚅",
 	}
 
-	dieStyle = lipgloss.NewStyle().
-			Width(7).
-			Height(3).
-			Align(lipgloss.Center).
-			Border(lipgloss.Border(lipgloss.RoundedBorder())).
-			MarginRight(1)
+	dieFaces map[int]string
+)
+
+func Setup(style lipgloss.Style) {
+	dieStyle := style.
+		Width(7).
+		Height(3).
+		Align(lipgloss.Center).
+		Border(lipgloss.Border(lipgloss.RoundedBorder()))
 
 	dieFaces = map[int]string{
+		0: dieStyle.BorderStyle(lipgloss.ThickBorder()).BorderForeground(lipgloss.Color("#555555")).Render("\n" + center("")),
 		1: dieStyle.Render("\n" + center("●")),
 		2: dieStyle.Render(strings.Join([]string{left("●"), "", right("●")}, "\n")),
 		3: dieStyle.Render(strings.Join([]string{left("●"), center("●"), right("●")}, "\n")),
@@ -31,7 +35,7 @@ var (
 		5: dieStyle.Render(strings.Join([]string{center("●   ●"), center("●"), center("●   ●")}, "\n")),
 		6: dieStyle.Render(strings.Join([]string{center("●   ●"), center("●   ●"), center("●   ●")}, "\n")),
 	}
-)
+}
 
 func left(s string) string {
 	return lipgloss.NewStyle().Width(5).Align(lipgloss.Left).Render(s)

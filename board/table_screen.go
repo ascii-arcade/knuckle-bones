@@ -1,10 +1,6 @@
 package board
 
 import (
-	"fmt"
-	"strings"
-
-	"github.com/ascii-arcade/knuckle-bones/keys"
 	"github.com/ascii-arcade/knuckle-bones/screen"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -13,6 +9,8 @@ import (
 type tableScreen struct {
 	model *Model
 	style lipgloss.Style
+
+	selectedColumn int
 }
 
 func (m *Model) newTableScreen() *tableScreen {
@@ -34,37 +32,67 @@ func (s *tableScreen) Update(msg tea.Msg) (any, tea.Cmd) {
 		return s.model, nil
 
 	case tea.KeyMsg:
-		if keys.GameIncrementPoint.TriggeredBy(msg.String()) {
-			s.model.Game.Count(s.model.Player)
-		}
+
 	}
 
 	return s.model, nil
 }
 
 func (s *tableScreen) View() string {
-	disconnectedPlayers := s.model.Game.GetDisconnectedPlayers()
-	if len(disconnectedPlayers) > 0 {
-		var names []string
-		for _, p := range disconnectedPlayers {
-			names = append(names, p.Name)
-		}
-		return s.style.Render(
-			lipgloss.JoinVertical(
-				lipgloss.Center,
-				s.model.style.Align(lipgloss.Center).MarginBottom(2).Render(s.model.Game.Code),
-				fmt.Sprintf(s.model.lang().Get("board", "disconnected_player"), strings.Join(names, ", ")),
-				s.style.Render(fmt.Sprintf(s.model.lang().Get("global", "quit"), keys.ExitApplication.String(s.style))),
+	mainPanelStyle := lipgloss.NewStyle().Width(s.model.width).Height(s.model.height).Align(lipgloss.Center, lipgloss.Center)
+
+	boardStyle := lipgloss.NewStyle().
+		Align(lipgloss.Center, lipgloss.Center).
+		BorderStyle(lipgloss.RoundedBorder()).
+		BorderForeground(lipgloss.Color("#fff")).
+		Width(33).
+		Height(17)
+
+	boardPlayerStyle := lipgloss.NewStyle().
+		Align(lipgloss.Center, lipgloss.Center).
+		Width(33).
+		Height(17)
+
+	boardTop := boardStyle.Render(
+		s.model.Game.PlayerOneBoard.Render(s.selectedColumn),
+	)
+
+	boardBottom := boardStyle.Render(
+		s.model.Game.PlayerTwoBoard.Render(-1),
+	)
+
+	pOneBoard := boardPlayerStyle.Height(33).Render("TEST\n0000")
+
+	mainPanel := mainPanelStyle.Render(
+		lipgloss.JoinHorizontal(
+			lipgloss.Center,
+			lipgloss.PlaceVertical(
+				s.model.height,
+				lipgloss.Bottom,
+				lipgloss.JoinVertical(
+					lipgloss.Bottom,
+					pOneBoard,
+				),
 			),
-		)
-	}
+			lipgloss.PlaceVertical(
+				s.model.height,
+				lipgloss.Center,
+				lipgloss.JoinVertical(
+					lipgloss.Bottom,
+					boardBottom,
+					boardTop,
+				),
+			),
+			lipgloss.PlaceVertical(
+				s.model.height,
+				lipgloss.Top,
+				lipgloss.JoinVertical(
+					lipgloss.Bottom,
+					pOneBoard,
+				),
+			),
+		),
+	)
 
-	counts := ""
-	for _, p := range s.model.Game.OrderedPlayers() {
-		counts += fmt.Sprintf("%s: %d\n", p.Name, p.Count)
-	}
-
-	return s.style.Render(fmt.Sprintf(s.model.lang().Get("board", "you_are"), s.model.Player.Name)) +
-		"\n\n" + counts +
-		"\n\n" + s.style.Render(fmt.Sprintf(s.model.lang().Get("global", "quit"), keys.ExitApplication.String(s.style)))
+	return mainPanel
 }

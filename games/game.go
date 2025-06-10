@@ -5,11 +5,14 @@ import (
 	"sort"
 	"sync"
 
+	"github.com/ascii-arcade/knuckle-bones/dice"
 	"github.com/charmbracelet/ssh"
 )
 
 type Game struct {
-	Code string
+	Code           string
+	PlayerOneBoard dice.DicePool
+	PlayerTwoBoard dice.DicePool
 
 	inProgress bool
 	mu         sync.Mutex

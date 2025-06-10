@@ -22,7 +22,7 @@ func NewPlayer(ctx context.Context, sess ssh.Session, langPref *language.Languag
 
 	player = &Player{
 		Name:               generaterandom.Name(langPref.Lang),
-		Count:              0,
+		Score:              0,
 		UpdateChan:         make(chan struct{}),
 		LanguagePreference: langPref,
 		Sess:               sess,

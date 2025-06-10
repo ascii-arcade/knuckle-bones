@@ -3,6 +3,7 @@ package games
 import (
 	"errors"
 
+	"github.com/ascii-arcade/knuckle-bones/dice"
 	"github.com/ascii-arcade/knuckle-bones/generaterandom"
 )
 
@@ -15,8 +16,10 @@ var games = make(map[string]*Game)
 
 func New() *Game {
 	game := &Game{
-		Code:    generaterandom.Code(),
-		players: make([]*Player, 0),
+		Code:           generaterandom.Code(),
+		players:        make([]*Player, 0),
+		PlayerOneBoard: make(dice.DicePool, 9),
+		PlayerTwoBoard: make(dice.DicePool, 9),
 	}
 	games[game.Code] = game
 

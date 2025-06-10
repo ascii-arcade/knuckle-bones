@@ -5,19 +5,10 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/ascii-arcade/knuckle-bones/score"
 	"github.com/charmbracelet/lipgloss"
 )
 
 type DicePool []int
-
-func NewDicePool(size int) DicePool {
-	p := make(DicePool, size)
-	for i := range p {
-		p[i] = 1
-	}
-	return p
-}
 
 func (p *DicePool) Roll() {
 	for i := range *p {
@@ -43,10 +34,6 @@ func (p *DicePool) Remove(face int) bool {
 	return false
 }
 
-func (p *DicePool) Score() (int, error) {
-	return score.Calculate([][]int{}, false)
-}
-
 func (p *DicePool) RenderCharacters() string {
 	if len(*p) == 0 {
 		return ""
@@ -63,34 +50,45 @@ func (p *DicePool) RenderCharacters() string {
 	return strings.TrimSpace(output)
 }
 
-func (p *DicePool) Render(start int, end int) string {
+func (p *DicePool) Render(columnSelected int) string {
 	diceCount := len(*p)
-	if diceCount == 0 {
-		return ""
-	}
-	if end > diceCount {
-		end = diceCount
-	}
-	if start >= end {
-		return ""
+
+	gridSize := 3
+	grid := make([][]string, gridSize)
+	for col := range grid {
+		grid[col] = make([]string, gridSize)
+		for row := range grid[col] {
+			idx := col*gridSize + row
+			grid[col][row] = ""
+
+			if idx < diceCount {
+				s := lipgloss.NewStyle().Margin(0, 1)
+				if col == 1 || col == columnSelected {
+					s = s.Margin(0)
+				}
+				if columnSelected == 1 && col == 0 {
+					s = s.Margin(0, 0, 0, 1)
+				}
+				if columnSelected == 1 && col == 2 {
+					s = s.Margin(0, 1, 0, 0)
+				}
+
+				grid[col][row] = s.Render(dieFaces[(*p)[idx]])
+			}
+		}
 	}
 
-	topCount := (diceCount + 1) / 2
-	bottomCount := diceCount / 2
+	columns := make([]string, gridSize)
+	for i := range grid {
+		columns[i] = lipgloss.JoinVertical(lipgloss.Top, grid[i]...)
 
-	topDice := make([]string, 0)
-	for i := range topCount {
-		topDice = append(topDice, dieFaces[(*p)[i]])
+		if columnSelected == i {
+			columns[i] = lipgloss.NewStyle().
+				Margin(0, 0).
+				Border(lipgloss.Border(lipgloss.NormalBorder())).
+				BorderForeground(lipgloss.Color("105")).
+				Render(columns[i])
+		}
 	}
-
-	bottomDice := make([]string, 0)
-	for i := range bottomCount {
-		bottomDice = append(bottomDice, dieFaces[(*p)[i+topCount]])
-	}
-
-	return lipgloss.JoinVertical(
-		lipgloss.Center,
-		lipgloss.JoinHorizontal(lipgloss.Top, topDice...),
-		lipgloss.JoinHorizontal(lipgloss.Top, bottomDice...),
-	)
+	return lipgloss.JoinHorizontal(lipgloss.Center, columns...)
 }

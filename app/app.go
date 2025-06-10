@@ -7,6 +7,7 @@ import (
 
 	"github.com/ascii-arcade/knuckle-bones/board"
 	"github.com/ascii-arcade/knuckle-bones/config"
+	"github.com/ascii-arcade/knuckle-bones/dice"
 	"github.com/ascii-arcade/knuckle-bones/games"
 	"github.com/ascii-arcade/knuckle-bones/language"
 	"github.com/ascii-arcade/knuckle-bones/menu"
@@ -50,6 +51,8 @@ func TeaHandler(sess ssh.Session) (tea.Model, []tea.ProgramOption) {
 	pty, _, _ := sess.Pty()
 	renderer := bubbletea.MakeRenderer(sess)
 	style := renderer.NewStyle()
+
+	dice.Setup(style)
 
 	languagePreference := language.LanguagePreference{Lang: config.Language}
 

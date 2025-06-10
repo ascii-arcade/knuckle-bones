@@ -9,7 +9,7 @@ import (
 
 type Player struct {
 	Name      string
-	Count     int
+	Score     int
 	TurnOrder int
 
 	isHost    bool
@@ -45,8 +45,4 @@ func (p *Player) IsHost() bool {
 
 func (p *Player) OnDisconnect(fn func()) {
 	p.onDisconnect = append(p.onDisconnect, fn)
-}
-
-func (p *Player) incrementCount() {
-	p.Count++
 }
