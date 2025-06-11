@@ -6,7 +6,8 @@ services:
         - GIT_TAG=${GIT_TAG:-dev}
     image: ascii-arcade/knucklebones:${GIT_TAG:-dev}
     ports:
-      - ${PORT}:${ASCII_ARCADE_SSH_PORT:-2222}
+      - ${SSH_PORT}:${ASCII_ARCADE_SSH_PORT:-2222}
+      - ${HTTP_PORT}:${ASCII_ARCADE_HTTP_PORT:-8080}
     restart: always
     env_file:
       - .env
