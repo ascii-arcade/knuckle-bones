@@ -22,7 +22,7 @@ type Player struct {
 
 	isHost bool
 
-	Board dice.DicePool
+	Board []dice.DicePool
 	Pool  dice.DicePool
 
 	onDisconnect []func()

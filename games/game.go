@@ -3,6 +3,7 @@ package games
 import (
 	"sync"
 
+	"github.com/ascii-arcade/knuckle-bones/dice"
 	"github.com/ascii-arcade/knuckle-bones/players"
 	"github.com/charmbracelet/ssh"
 )
@@ -190,4 +191,59 @@ func (g *Game) GetOpponent(p *players.Player) *players.Player {
 		return g.PlayerTwo
 	}
 	return g.PlayerOne
+}
+
+func (g *Game) PlaceDie(p *players.Player, column int) error {
+	return g.withErrLock(func() error {
+		if !g.IsTurn(p) {
+			return ErrNotYourTurn
+		}
+
+		if !g.rolled {
+			return ErrDiceNotRolled
+		}
+
+		spot := nextSpot(p.Board[column])
+		if spot == -1 {
+			return ErrColumnFull
+		}
+
+		p.Board[column][spot] = p.Pool[0]
+		p.Pool = make(dice.DicePool, 1)
+
+		removeSame(g.GetOpponent(p).Board[column], p.Board[column][spot])
+
+		if full(p.Board) {
+
+		}
+
+		g.nextTurn()
+		return nil
+	})
+}
+
+func nextSpot(pool dice.DicePool) int {
+	for i, face := range pool {
+		if face == 0 {
+			return i
+		}
+	}
+	return -1
+}
+
+func full(board []dice.DicePool) bool {
+	for _, col := range board {
+		if nextSpot(col) != -1 {
+			return false
+		}
+	}
+	return true
+}
+
+func removeSame(column dice.DicePool, face int) {
+	for i, n := range column {
+		if n == face {
+			column[i] = 0 // Remove the die by setting it to 0
+		}
+	}
 }

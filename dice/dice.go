@@ -50,7 +50,7 @@ func (p *DicePool) RenderCharacters() string {
 	return strings.TrimSpace(output)
 }
 
-func (p *DicePool) Render() string {
+func (p *DicePool) Render(reverse bool) string {
 	diceCount := len(*p)
 
 	gridSize := 3
@@ -69,7 +69,14 @@ func (p *DicePool) Render() string {
 
 	columns := make([]string, gridSize)
 	for i := range grid {
-		columns[i] = lipgloss.JoinVertical(lipgloss.Top, grid[i]...)
+		cells := grid[i]
+		if reverse {
+			// Reverse the order for this column
+			for j, n := 0, len(cells)-1; j < n; j, n = j+1, n-1 {
+				cells[j], cells[n] = cells[n], cells[j]
+			}
+		}
+		columns[i] = lipgloss.JoinVertical(lipgloss.Top, cells...)
 	}
 	return lipgloss.JoinHorizontal(lipgloss.Center, columns...)
 }

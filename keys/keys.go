@@ -35,8 +35,6 @@ var (
 	ExitApplication = Keys{"ctrl+c"}
 	LobbyStartGame  = Keys{"s"}
 
-	ActionRoll        = Keys{"r"}
-	ActionColumnOne   = Keys{"1"}
-	ActionColumnTwo   = Keys{"2"}
-	ActionColumnThree = Keys{"3"}
+	ActionRoll         = Keys{"r"}
+	ActionSelectColumn = Keys{"1", "2", "3"}
 )

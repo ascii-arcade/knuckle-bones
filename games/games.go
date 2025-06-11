@@ -9,6 +9,9 @@ import (
 var (
 	ErrGameInProgress = errors.New("game_already_in_progress")
 	ErrGameNotFound   = errors.New("game_not_found")
+	ErrNotYourTurn    = errors.New("not_your_turn")
+	ErrDiceNotRolled  = errors.New("dice_not_rolled")
+	ErrColumnFull     = errors.New("column_full")
 )
 
 var games = make(map[string]*Game)

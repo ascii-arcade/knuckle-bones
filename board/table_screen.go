@@ -1,10 +1,12 @@
 package board
 
 import (
+	"strconv"
 	"time"
 
 	"github.com/ascii-arcade/knuckle-bones/keys"
 	"github.com/ascii-arcade/knuckle-bones/messages"
+	"github.com/ascii-arcade/knuckle-bones/score"
 	"github.com/ascii-arcade/knuckle-bones/screen"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -70,6 +72,15 @@ func (s *tableScreen) Update(msg tea.Msg) (any, tea.Cmd) {
 				})
 			}
 		}
+
+		if keys.ActionSelectColumn.TriggeredBy(msg.String()) {
+			if s.model.game.Rolled() && !s.rolling {
+				column := msg.String()[0] - '1'
+				if err := s.model.game.PlaceDie(s.model.player, int(column)); err != nil {
+					s.model.error = s.model.lang().Get("error." + err.Error())
+				}
+			}
+		}
 	}
 
 	return s.model, nil
@@ -96,13 +107,23 @@ func (s *tableScreen) View() string {
 	them := s.model.game.GetOpponent(s.model.player)
 
 	boardTop := boardStyle.Render(
-		them.Board.Render(),
+		lipgloss.JoinHorizontal(
+			lipgloss.Center,
+			them.Board[0].Render(true),
+			them.Board[1].Render(true),
+			them.Board[2].Render(true),
+		),
 	)
 
 	boardBottom := boardStyle.Height(16).AlignVertical(lipgloss.Bottom).Render(
 		lipgloss.JoinVertical(
 			lipgloss.Center,
-			me.Board.Render(),
+			lipgloss.JoinHorizontal(
+				lipgloss.Center,
+				me.Board[0].Render(false),
+				me.Board[1].Render(false),
+				me.Board[2].Render(false),
+			),
 			lipgloss.JoinHorizontal(
 				lipgloss.Center,
 				lipgloss.PlaceHorizontal(9, lipgloss.Center, "1"),
@@ -116,17 +137,17 @@ func (s *tableScreen) View() string {
 		lipgloss.JoinVertical(
 			lipgloss.Center,
 			them.Name,
-			"0",
-			them.Pool.Render(),
+			strconv.Itoa(score.Calculate(them.Board)),
+			them.Pool.Render(false),
 		),
 	)
 
 	myBoard := boardPlayerStyle.Height(33).Render(
 		lipgloss.JoinVertical(
 			lipgloss.Center,
-			me.Pool.Render(),
+			me.Pool.Render(false),
 			me.Name,
-			"0",
+			strconv.Itoa(score.Calculate(me.Board)),
 		),
 	)
 
