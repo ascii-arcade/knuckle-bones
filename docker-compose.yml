@@ -10,8 +10,6 @@ services:
     restart: always
     env_file:
       - .env
-    environment:
-      - ASCII_ARCADE_LANG="EN"
     volumes:
       - ssh:/app/.ssh
 

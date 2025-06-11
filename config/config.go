@@ -19,7 +19,7 @@ var (
 	Version  string = "dev"
 	Debug    bool   = cmp.Or(os.Getenv("ASCII_ARCADE_DEBUG"), "false") == "true"
 	Host     string = cmp.Or(os.Getenv("ASCII_ARCADE_HOST"), "localhost")
-	SSHPort  string = cmp.Or(os.Getenv("ASCII_ARCADE_SSH_PORT"), "23234")
+	SSHPort  string = cmp.Or(os.Getenv("ASCII_ARCADE_SSH_PORT"), "2222")
 	HTTPPort string = cmp.Or(os.Getenv("ASCII_ARCADE_HTTP_PORT"), "8080")
 )
 
