@@ -7,3 +7,6 @@ build:
 	@GIT_TAG=$(GIT_TAG) docker compose build
 run: build
 	@GIT_TAG=$(GIT_TAG) docker compose up -d
+update:
+	@git fetch -p && git fetch --tags
+	@git checkout $(git describe --tags "$(git rev-list --tags --max-count=1)")
