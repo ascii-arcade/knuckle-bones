@@ -87,7 +87,26 @@ func (s *tableScreen) Update(msg tea.Msg) (any, tea.Cmd) {
 }
 
 func (s *tableScreen) View() string {
-	mainPanelStyle := lipgloss.NewStyle().Width(s.model.width).Height(s.model.height).Align(lipgloss.Center, lipgloss.Center)
+	mainPanelStyle := lipgloss.NewStyle().
+		Width(s.model.width-2).
+		Height(s.model.height-2).
+		BorderStyle(lipgloss.RoundedBorder()).
+		Align(lipgloss.Center, lipgloss.Center)
+
+	if s.model.game.Finished {
+		content := []string{
+			s.model.lang().Get("board.game_over", s.model.game.Winner().Name),
+		}
+		if s.model.player.IsHost() {
+			content = append(content, s.model.lang().Get("board.reset_game", keys.ActionRestart.String(s.style)))
+		}
+		return mainPanelStyle.Render(
+			lipgloss.JoinVertical(
+				lipgloss.Center,
+				content...,
+			),
+		)
+	}
 
 	boardStyle := lipgloss.NewStyle().
 		Align(lipgloss.Center, lipgloss.Center).

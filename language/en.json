@@ -27,7 +27,9 @@
       "player_list_you": "you",
       "player_list_host": "host",
       "you_are" : "You are %s",
-      "disconnected_player": "%s has disconnected. Waiting for them to reconnect..."
+      "disconnected_player": "%s has disconnected. Waiting for them to reconnect...",
+      "game_over": "Game over! The winner is %s!",
+      "reset_game": "Press '%s' to reset the game"
     }
   },
   "username_first_words": [

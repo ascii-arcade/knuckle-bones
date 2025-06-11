@@ -5,6 +5,7 @@ import (
 
 	"github.com/ascii-arcade/knucklebones/dice"
 	"github.com/ascii-arcade/knucklebones/players"
+	"github.com/ascii-arcade/knucklebones/score"
 	"github.com/charmbracelet/ssh"
 )
 
@@ -13,8 +14,9 @@ type Game struct {
 	PlayerOne *players.Player
 	PlayerTwo *players.Player
 
-	turn   int
-	rolled bool
+	turn     int
+	rolled   bool
+	Finished bool
 
 	inProgress bool
 	mu         sync.Mutex
@@ -214,7 +216,8 @@ func (g *Game) PlaceDie(p *players.Player, column int) error {
 		removeSame(g.GetOpponent(p).Board[column], p.Board[column][spot])
 
 		if full(p.Board) {
-
+			g.Finished = true
+			return nil
 		}
 
 		g.nextTurn()
@@ -246,4 +249,18 @@ func removeSame(column dice.DicePool, face int) {
 			column[i] = 0 // Remove the die by setting it to 0
 		}
 	}
+}
+
+func (g *Game) Winner() *players.Player {
+	if !g.Finished {
+		return nil
+	}
+
+	pOneScore := score.Calculate(g.PlayerOne.Board)
+	pTwoScore := score.Calculate(g.PlayerTwo.Board)
+	if pOneScore > pTwoScore {
+		return g.PlayerOne
+	}
+
+	return g.PlayerTwo
 }

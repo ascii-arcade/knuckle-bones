@@ -27,7 +27,9 @@
       "player_list_you": "tú",
       "player_list_host": "anfitrión",
       "you_are": "Eres %s",
-      "disconnected_player": "%s se ha desconectado. Esperando a que se reconecte..."
+      "disconnected_player": "%s se ha desconectado. Esperando a que se reconecte...",
+      "game_over": "Juego terminado! ¡El ganador es %s!",
+      "reset_game": "Presiona '%s' para reiniciar el juego"
     }
   },
   "username_first_words": [

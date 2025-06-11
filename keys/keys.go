@@ -36,5 +36,6 @@ var (
 	LobbyStartGame  = Keys{"s"}
 
 	ActionRoll         = Keys{"r"}
+	ActionRestart      = Keys{"space"}
 	ActionSelectColumn = Keys{"1", "2", "3"}
 )
