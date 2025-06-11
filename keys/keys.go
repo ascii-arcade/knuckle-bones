@@ -32,7 +32,11 @@ var (
 	PreviousScreen = Keys{"esc"}
 	Submit         = Keys{"enter"}
 
-	ExitApplication    = Keys{"ctrl+c"}
-	GameIncrementPoint = Keys{"a"}
-	LobbyStartGame     = Keys{"s"}
+	ExitApplication = Keys{"ctrl+c"}
+	LobbyStartGame  = Keys{"s"}
+
+	ActionRoll        = Keys{"r"}
+	ActionColumnOne   = Keys{"1"}
+	ActionColumnTwo   = Keys{"2"}
+	ActionColumnThree = Keys{"3"}
 )

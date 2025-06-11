@@ -50,7 +50,7 @@ func (s *joinScreen) Update(msg tea.Msg) (any, tea.Cmd) {
 
 				game, err := games.GetOpenGame(code)
 				if err != nil {
-					if !errors.Is(err, games.ErrGameInProgress) && !game.HasPlayer(s.model.player) {
+					if !errors.Is(err, games.ErrGameInProgress) {
 						s.model.setError(err.Error())
 						return s.model, nil
 					}
@@ -65,14 +65,20 @@ func (s *joinScreen) Update(msg tea.Msg) (any, tea.Cmd) {
 			}
 		}
 
-		s.model.clearError()
-		s.model.gameCodeInput, cmd = s.model.gameCodeInput.Update(msg)
-		s.model.gameCodeInput.SetValue(strings.ToUpper(s.model.gameCodeInput.Value()))
-
-		if len(s.model.gameCodeInput.Value()) == 3 && !strings.Contains(s.model.gameCodeInput.Value(), "-") {
-			s.model.gameCodeInput.SetValue(s.model.gameCodeInput.Value() + "-")
-			s.model.gameCodeInput.CursorEnd()
+		if msg.Type == tea.KeyCtrlQuestionMark {
+			if len(s.model.gameCodeInput.Value()) == 4 {
+				s.model.gameCodeInput.SetValue(s.model.gameCodeInput.Value()[:len(s.model.gameCodeInput.Value())-1])
+			}
 		}
+	}
+
+	s.model.clearError()
+	s.model.gameCodeInput, cmd = s.model.gameCodeInput.Update(msg)
+	s.model.gameCodeInput.SetValue(strings.ToUpper(s.model.gameCodeInput.Value()))
+
+	if len(s.model.gameCodeInput.Value()) == 3 && !strings.HasSuffix(s.model.gameCodeInput.Value(), "-") {
+		s.model.gameCodeInput.SetValue(s.model.gameCodeInput.Value() + "-")
+		s.model.gameCodeInput.CursorEnd()
 	}
 	return s.model, cmd
 }

@@ -1,8 +1,9 @@
-package games
+package players
 
 import (
 	"context"
 
+	"github.com/ascii-arcade/knuckle-bones/dice"
 	"github.com/ascii-arcade/knuckle-bones/generaterandom"
 	"github.com/ascii-arcade/knuckle-bones/language"
 	"github.com/charmbracelet/ssh"
@@ -14,7 +15,8 @@ func NewPlayer(ctx context.Context, sess ssh.Session, langPref *language.Languag
 	player, exists := players[sess.User()]
 	if exists {
 		player.UpdateChan = make(chan struct{})
-		player.connected = true
+		player.Connected = true
+		player.isHost = false
 		player.ctx = ctx
 
 		goto RETURN
@@ -24,9 +26,11 @@ func NewPlayer(ctx context.Context, sess ssh.Session, langPref *language.Languag
 		Name:               generaterandom.Name(langPref.Lang),
 		Score:              0,
 		UpdateChan:         make(chan struct{}),
+		Board:              make(dice.DicePool, 9),
+		Pool:               make(dice.DicePool, 1),
 		LanguagePreference: langPref,
 		Sess:               sess,
-		connected:          true,
+		Connected:          true,
 		ctx:                ctx,
 	}
 	players[sess.User()] = player
@@ -34,7 +38,7 @@ func NewPlayer(ctx context.Context, sess ssh.Session, langPref *language.Languag
 RETURN:
 	go func() {
 		<-player.ctx.Done()
-		player.connected = false
+		player.Connected = false
 		for _, fn := range player.onDisconnect {
 			fn()
 		}
@@ -57,7 +61,7 @@ func GetPlayerCount() int {
 func GetConnectedPlayerCount() int {
 	count := 0
 	for _, player := range players {
-		if player.connected {
+		if player.Connected {
 			count++
 		}
 	}

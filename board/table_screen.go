@@ -1,6 +1,10 @@
 package board
 
 import (
+	"time"
+
+	"github.com/ascii-arcade/knuckle-bones/keys"
+	"github.com/ascii-arcade/knuckle-bones/messages"
 	"github.com/ascii-arcade/knuckle-bones/screen"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -10,8 +14,14 @@ type tableScreen struct {
 	model *Model
 	style lipgloss.Style
 
-	selectedColumn int
+	rollTickCount int
+	rolling       bool
 }
+
+const (
+	rollFrames   = 15
+	rollInterval = 200 * time.Millisecond
+)
 
 func (m *Model) newTableScreen() *tableScreen {
 	return &tableScreen{
@@ -31,8 +41,35 @@ func (s *tableScreen) Update(msg tea.Msg) (any, tea.Cmd) {
 		s.model.height, s.model.width = msg.Height, msg.Width
 		return s.model, nil
 
-	case tea.KeyMsg:
+	case messages.RollMsg:
+		if !s.model.game.IsTurn(s.model.player) {
+			return s.model, nil
+		}
 
+		if s.rollTickCount < rollFrames {
+			s.rollTickCount++
+			s.model.game.RollDice(s.rolling)
+			return s.model, tea.Tick(rollInterval, func(time.Time) tea.Msg {
+				return messages.RollMsg{}
+			})
+		}
+		s.rolling = false
+		s.model.game.RollDice(s.rolling)
+
+	case tea.KeyMsg:
+		if !s.model.game.IsTurn(s.model.player) {
+			return s.model, nil
+		}
+
+		if keys.ActionRoll.TriggeredBy(msg.String()) {
+			if !s.model.game.Rolled() && !s.rolling {
+				s.rollTickCount = 0
+				s.rolling = true
+				return s.model, tea.Tick(rollInterval, func(time.Time) tea.Msg {
+					return messages.RollMsg{}
+				})
+			}
+		}
 	}
 
 	return s.model, nil
@@ -45,23 +82,53 @@ func (s *tableScreen) View() string {
 		Align(lipgloss.Center, lipgloss.Center).
 		BorderStyle(lipgloss.RoundedBorder()).
 		BorderForeground(lipgloss.Color("#fff")).
+		Margin(0).
 		Width(33).
 		Height(17)
 
 	boardPlayerStyle := lipgloss.NewStyle().
 		Align(lipgloss.Center, lipgloss.Center).
+		Margin(0).
 		Width(33).
 		Height(17)
 
+	me := s.model.player
+	them := s.model.game.GetOpponent(s.model.player)
+
 	boardTop := boardStyle.Render(
-		s.model.Game.PlayerOneBoard.Render(s.selectedColumn),
+		them.Board.Render(),
 	)
 
-	boardBottom := boardStyle.Render(
-		s.model.Game.PlayerTwoBoard.Render(-1),
+	boardBottom := boardStyle.Height(16).AlignVertical(lipgloss.Bottom).Render(
+		lipgloss.JoinVertical(
+			lipgloss.Center,
+			me.Board.Render(),
+			lipgloss.JoinHorizontal(
+				lipgloss.Center,
+				lipgloss.PlaceHorizontal(9, lipgloss.Center, "1"),
+				lipgloss.PlaceHorizontal(9, lipgloss.Center, "2"),
+				lipgloss.PlaceHorizontal(9, lipgloss.Center, "3"),
+			),
+		),
 	)
 
-	pOneBoard := boardPlayerStyle.Height(33).Render("TEST\n0000")
+	theirBoard := boardPlayerStyle.Height(33).Render(
+		lipgloss.JoinVertical(
+			lipgloss.Center,
+			them.Name,
+			"0",
+			them.Pool.Render(),
+		),
+	)
+
+	myBoard := boardPlayerStyle.Height(33).Render(
+		lipgloss.JoinVertical(
+			lipgloss.Center,
+			me.Pool.Render(),
+			me.Name,
+			"0",
+		),
+	)
 
 	mainPanel := mainPanelStyle.Render(
 		lipgloss.JoinHorizontal(
@@ -71,7 +138,7 @@ func (s *tableScreen) View() string {
 				lipgloss.Bottom,
 				lipgloss.JoinVertical(
 					lipgloss.Bottom,
-					pOneBoard,
+					myBoard,
 				),
 			),
 			lipgloss.PlaceVertical(
@@ -79,8 +146,8 @@ func (s *tableScreen) View() string {
 				lipgloss.Center,
 				lipgloss.JoinVertical(
 					lipgloss.Bottom,
-					boardBottom,
 					boardTop,
+					boardBottom,
 				),
 			),
 			lipgloss.PlaceVertical(
@@ -88,7 +155,7 @@ func (s *tableScreen) View() string {
 				lipgloss.Top,
 				lipgloss.JoinVertical(
 					lipgloss.Bottom,
-					pOneBoard,
+					theirBoard,
 				),
 			),
 		),

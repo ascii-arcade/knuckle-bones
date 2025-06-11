@@ -10,4 +10,5 @@ type (
 	SwitchToBoardMsg struct{ Game *games.Game }
 	SwitchScreenMsg  struct{ Screen screen.Screen }
 	RefreshBoard     struct{}
+	RollMsg          struct{}
 )

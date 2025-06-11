@@ -7,6 +7,7 @@ import (
 
 	"github.com/ascii-arcade/knuckle-bones/config"
 	"github.com/ascii-arcade/knuckle-bones/games"
+	"github.com/ascii-arcade/knuckle-bones/players"
 )
 
 func Run() error {
@@ -58,8 +59,8 @@ func Run() error {
 		}{
 			TotalGames:            totalGames,
 			TotalStartedGames:     totalStartedGames,
-			TotalUniquePlayers:    games.GetPlayerCount(),
-			TotalConnectedPlayers: games.GetConnectedPlayerCount(),
+			TotalUniquePlayers:    players.GetPlayerCount(),
+			TotalConnectedPlayers: players.GetConnectedPlayerCount(),
 		}); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}

@@ -5,6 +5,7 @@ import (
 
 	"github.com/ascii-arcade/knuckle-bones/colors"
 	"github.com/ascii-arcade/knuckle-bones/keys"
+	"github.com/ascii-arcade/knuckle-bones/messages"
 	"github.com/ascii-arcade/knuckle-bones/screen"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -35,8 +36,20 @@ func (s *lobbyScreen) Update(msg tea.Msg) (any, tea.Cmd) {
 
 	case tea.KeyMsg:
 		if keys.LobbyStartGame.TriggeredBy(msg.String()) {
-			if s.model.Player.IsHost() {
-				_ = s.model.Game.Begin()
+			if s.model.player.IsHost() {
+				if err := s.model.game.Begin(); err != nil {
+					s.model.error = s.model.lang().Get("error", err.Error())
+					return s.model, nil
+				}
+			}
+		}
+
+	case messages.RefreshBoard:
+		if s.model.game.InProgress() {
+			return s.model, func() tea.Msg {
+				return messages.SwitchScreenMsg{
+					Screen: s.model.newTableScreen(),
+				}
 			}
 		}
 	}
@@ -48,10 +61,10 @@ func (s *lobbyScreen) View() string {
 	style := s.style.Width(s.model.width / 2)
 
 	footer := s.model.lang().Get("board", "waiting_for_start")
-	if s.model.Player.IsHost() {
+	if s.model.player.IsHost() {
 		footer = fmt.Sprintf(s.model.lang().Get("board", "press_to_start"), keys.LobbyStartGame.String(s.style))
 
-		if err := s.model.Game.IsPlayerCountOk(); err != nil {
+		if err := s.model.game.IsPlayerCountOk(); err != nil {
 			errorMessage := s.model.lang().Get("error", err.Error())
 			footer = s.style.Foreground(colors.Error).Render(errorMessage)
 		}
@@ -59,7 +72,7 @@ func (s *lobbyScreen) View() string {
 	footer += "\n"
 	footer += fmt.Sprintf(s.model.lang().Get("global", "quit"), keys.ExitApplication.String(s.style))
 
-	header := s.model.Game.Code
+	header := s.model.game.Code
 	playerList := s.style.Render(s.playerList())
 
 	content := lipgloss.JoinVertical(
@@ -85,9 +98,9 @@ func (s *lobbyScreen) View() string {
 
 func (s *lobbyScreen) playerList() string {
 	playerList := ""
-	for _, p := range s.model.Game.OrderedPlayers() {
+	for _, p := range s.model.game.GetPlayers() {
 		playerList += "* " + p.Name
-		if p.Name == s.model.Player.Name {
+		if p.Name == s.model.player.Name {
 			playerList += fmt.Sprintf(" (%s)", s.model.lang().Get("board", "player_list_you"))
 		}
 		if p.IsHost() {

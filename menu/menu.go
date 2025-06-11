@@ -10,6 +10,7 @@ import (
 	"github.com/ascii-arcade/knuckle-bones/keys"
 	"github.com/ascii-arcade/knuckle-bones/language"
 	"github.com/ascii-arcade/knuckle-bones/messages"
+	"github.com/ascii-arcade/knuckle-bones/players"
 	"github.com/ascii-arcade/knuckle-bones/screen"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
@@ -42,10 +43,10 @@ type Model struct {
 	errorCode     string
 	gameCodeInput textinput.Model
 
-	player *games.Player
+	player *players.Player
 }
 
-func NewModel(width, height int, style lipgloss.Style, player *games.Player) Model {
+func NewModel(width, height int, style lipgloss.Style, player *players.Player) Model {
 	ti := textinput.New()
 	ti.Width = 9
 	ti.CharLimit = 7
@@ -121,12 +122,17 @@ func (m *Model) clearError() {
 	m.errorCode = ""
 }
 
-func (m *Model) joinGame(code string, isNew bool) error {
+func (m *Model) joinGame(code string, isHost bool) error {
+	if isHost {
+		m.player.MakeHost()
+	}
+
 	game, err := games.GetOpenGame(code)
 	if err != nil && !(errors.Is(err, games.ErrGameInProgress) && game.HasPlayer(m.player)) {
 		return err
 	}
-	if err := game.AddPlayer(m.player, isNew); err != nil {
+
+	if err := game.AddPlayer(m.player); err != nil {
 		return err
 	}
 	return nil

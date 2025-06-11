@@ -1,148 +1,193 @@
 package games
 
 import (
-	"slices"
-	"sort"
 	"sync"
 
-	"github.com/ascii-arcade/knuckle-bones/dice"
+	"github.com/ascii-arcade/knuckle-bones/players"
 	"github.com/charmbracelet/ssh"
 )
 
 type Game struct {
-	Code           string
-	PlayerOneBoard dice.DicePool
-	PlayerTwoBoard dice.DicePool
+	Code      string
+	PlayerOne *players.Player
+	PlayerTwo *players.Player
+
+	turn   int
+	rolled bool
 
 	inProgress bool
 	mu         sync.Mutex
-	players    []*Player
 }
 
-func (s *Game) InProgress() bool {
-	return s.inProgress
+func (g *Game) InProgress() bool {
+	return g.inProgress
 }
 
-func (s *Game) OrderedPlayers() []*Player {
-	var players []*Player
-	players = append(players, s.players...)
-	sort.Slice(players, func(i, j int) bool {
-		return players[i].TurnOrder < players[j].TurnOrder
-	})
-
-	return players
-}
-
-func (s *Game) refresh() {
-	for _, p := range s.players {
-		select {
-		case p.UpdateChan <- struct{}{}:
-		default:
+func (g *Game) refresh() {
+	players := []*players.Player{g.PlayerOne, g.PlayerTwo}
+	for _, p := range players {
+		if p != nil && p.UpdateChan != nil {
+			select {
+			case p.UpdateChan <- struct{}{}:
+			default:
+			}
 		}
 	}
 }
 
-func (s *Game) withLock(fn func()) {
-	s.mu.Lock()
+func (g *Game) Rolled() bool {
+	r := false
+	g.withLock(func() {
+		r = g.rolled
+	})
+	return r
+}
+
+func (g *Game) withLock(fn func()) {
+	g.mu.Lock()
 	defer func() {
-		s.refresh()
-		s.mu.Unlock()
+		g.refresh()
+		g.mu.Unlock()
 	}()
 	fn()
 }
 
-func (s *Game) withErrLock(fn func() error) error {
-	s.mu.Lock()
+func (g *Game) withErrLock(fn func() error) error {
+	g.mu.Lock()
 	defer func() {
-		s.refresh()
-		s.mu.Unlock()
+		g.refresh()
+		g.mu.Unlock()
 	}()
 	return fn()
 }
 
-func (s *Game) AddPlayer(player *Player, isHost bool) error {
-	return s.withErrLock(func() error {
-		if _, ok := s.getPlayer(player.Sess); ok {
+func (g *Game) AddPlayer(player *players.Player) error {
+	return g.withErrLock(func() error {
+		if _, ok := g.getPlayer(player.Sess); ok {
 			return nil
 		}
 
-		if s.inProgress {
+		if g.inProgress {
 			return ErrGameInProgress
 		}
 
-		maxTurnOrder := 0
-		for _, p := range s.players {
-			if p.TurnOrder > maxTurnOrder {
-				maxTurnOrder = p.TurnOrder
-			}
-		}
-
-		player.SetTurnOrder(maxTurnOrder + 1)
-		if isHost {
-			player.MakeHost()
-		}
-
 		player.OnDisconnect(func() {
-			if !s.inProgress {
-				s.RemovePlayer(player)
+			if !g.inProgress {
+				g.RemovePlayer(player)
 			}
 		})
 
-		s.players = append(s.players, player)
+		if player.IsHost() {
+			g.PlayerOne = player
+		} else {
+			g.PlayerTwo = player
+		}
+
 		return nil
 	})
 }
 
-func (s *Game) RemovePlayer(player *Player) {
-	s.withLock(func() {
-		if player, exists := s.getPlayer(player.Sess); exists {
+func (g *Game) RemovePlayer(player *players.Player) {
+	g.withLock(func() {
+		if player, exists := g.getPlayer(player.Sess); exists {
 			close(player.UpdateChan)
-			for i, p := range s.players {
-				if p.Sess.User() == player.Sess.User() {
-					s.players = slices.Delete(s.players, i, i+1)
-					break
-				}
-			}
-
-			if s.GetPlayerCount(false) == 0 {
-				delete(games, s.Code)
+			if g.PlayerOne == player {
+				g.PlayerOne = nil
+			} else if g.PlayerTwo == player {
+				g.PlayerTwo = nil
 			}
 		}
 	})
 }
 
-func (s *Game) getPlayer(sess ssh.Session) (*Player, bool) {
-	for _, p := range s.players {
-		if p.Sess.User() == sess.User() {
-			return p, true
-		}
+func (g *Game) getPlayer(sess ssh.Session) (*players.Player, bool) {
+	if g.PlayerOne != nil && g.PlayerOne.Sess.User() == sess.User() {
+		return g.PlayerOne, true
+	} else if g.PlayerTwo != nil && g.PlayerTwo.Sess.User() == sess.User() {
+		return g.PlayerTwo, true
 	}
 	return nil, false
 }
 
-func (s *Game) GetDisconnectedPlayers() []*Player {
-	var players []*Player
-	s.withLock(func() {
-		for _, p := range s.players {
-			if !p.connected {
-				players = append(players, p)
-			}
-		}
-	})
+func (g *Game) GetPlayers() []*players.Player {
+	var players []*players.Player
+	if g.PlayerOne != nil {
+		players = append(players, g.PlayerOne)
+	}
+	if g.PlayerTwo != nil {
+		players = append(players, g.PlayerTwo)
+	}
 	return players
 }
 
-func (s *Game) HasPlayer(player *Player) bool {
-	_, exists := s.getPlayer(player.Sess)
+func (g *Game) GetDisconnectedPlayers() []*players.Player {
+	var players []*players.Player
+	g.withLock(func() {
+		if !g.PlayerOne.Connected {
+			players = append(players, g.PlayerOne)
+		}
+		if !g.PlayerTwo.Connected {
+			players = append(players, g.PlayerTwo)
+		}
+	})
+
+	if len(players) == 2 {
+		g.RemovePlayer(players[0])
+		g.RemovePlayer(players[1])
+		return nil
+	}
+
+	return players
+}
+
+func (g *Game) HasPlayer(player *players.Player) bool {
+	_, exists := g.getPlayer(player.Sess)
 	return exists
 }
 
-func (s *Game) GetPlayerCount(includeDisconnected bool) int {
-	count := 0
-	for _, p := range s.players {
-		if includeDisconnected || p.connected {
-			count++
-		}
+func (g *Game) nextTurn() {
+	if g.turn == 0 {
+		g.turn = 1
+	} else {
+		g.turn = 0
 	}
-	return count
+
+	g.rolled = false
+}
+
+func (g *Game) RollDice(rolling bool) {
+	g.withLock(func() {
+		switch g.turn {
+		case 0:
+			g.PlayerOne.Pool.Roll()
+		case 1:
+			g.PlayerTwo.Pool.Roll()
+		}
+
+		if !rolling {
+			g.rolled = true
+		}
+	})
+}
+
+func (g *Game) GetTurnPlayer() *players.Player {
+	if g.turn == 0 {
+		return g.PlayerOne
+	}
+	return g.PlayerTwo
+}
+
+func (g *Game) IsTurn(p *players.Player) bool {
+	return g.GetTurnPlayer().Name == p.Name
+}
+
+func (g *Game) IsPlayerOne(p *players.Player) bool {
+	return g.PlayerOne.Name == p.Name
+}
+
+func (g *Game) GetOpponent(p *players.Player) *players.Player {
+	if g.PlayerOne == p {
+		return g.PlayerTwo
+	}
+	return g.PlayerOne
 }

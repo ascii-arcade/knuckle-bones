@@ -8,10 +8,10 @@ import (
 	"github.com/ascii-arcade/knuckle-bones/board"
 	"github.com/ascii-arcade/knuckle-bones/config"
 	"github.com/ascii-arcade/knuckle-bones/dice"
-	"github.com/ascii-arcade/knuckle-bones/games"
 	"github.com/ascii-arcade/knuckle-bones/language"
 	"github.com/ascii-arcade/knuckle-bones/menu"
 	"github.com/ascii-arcade/knuckle-bones/messages"
+	"github.com/ascii-arcade/knuckle-bones/players"
 )
 
 type Model struct {
@@ -27,7 +27,7 @@ func (m Model) Init() tea.Cmd {
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case messages.SwitchToBoardMsg:
-		m.board.Game = msg.Game
+		m.board.SetGame(msg.Game)
 		m.active = m.board
 		initcmd := m.board.Init()
 		return m, initcmd
@@ -56,7 +56,7 @@ func TeaHandler(sess ssh.Session) (tea.Model, []tea.ProgramOption) {
 
 	languagePreference := language.LanguagePreference{Lang: config.Language}
 
-	player := games.NewPlayer(sess.Context(), sess, &languagePreference)
+	player := players.NewPlayer(sess.Context(), sess, &languagePreference)
 
 	m := Model{
 		board: board.NewModel(pty.Window.Width, pty.Window.Height, style, player),

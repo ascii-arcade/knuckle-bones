@@ -50,7 +50,7 @@ func (p *DicePool) RenderCharacters() string {
 	return strings.TrimSpace(output)
 }
 
-func (p *DicePool) Render(columnSelected int) string {
+func (p *DicePool) Render() string {
 	diceCount := len(*p)
 
 	gridSize := 3
@@ -62,18 +62,7 @@ func (p *DicePool) Render(columnSelected int) string {
 			grid[col][row] = ""
 
 			if idx < diceCount {
-				s := lipgloss.NewStyle().Margin(0, 1)
-				if col == 1 || col == columnSelected {
-					s = s.Margin(0)
-				}
-				if columnSelected == 1 && col == 0 {
-					s = s.Margin(0, 0, 0, 1)
-				}
-				if columnSelected == 1 && col == 2 {
-					s = s.Margin(0, 1, 0, 0)
-				}
-
-				grid[col][row] = s.Render(dieFaces[(*p)[idx]])
+				grid[col][row] = lipgloss.NewStyle().Render(dieFaces[(*p)[idx]])
 			}
 		}
 	}
@@ -81,14 +70,6 @@ func (p *DicePool) Render(columnSelected int) string {
 	columns := make([]string, gridSize)
 	for i := range grid {
 		columns[i] = lipgloss.JoinVertical(lipgloss.Top, grid[i]...)
-
-		if columnSelected == i {
-			columns[i] = lipgloss.NewStyle().
-				Margin(0, 0).
-				Border(lipgloss.Border(lipgloss.NormalBorder())).
-				BorderForeground(lipgloss.Color("105")).
-				Render(columns[i])
-		}
 	}
 	return lipgloss.JoinHorizontal(lipgloss.Center, columns...)
 }

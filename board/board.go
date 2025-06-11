@@ -6,6 +6,7 @@ import (
 	"github.com/ascii-arcade/knuckle-bones/keys"
 	"github.com/ascii-arcade/knuckle-bones/language"
 	"github.com/ascii-arcade/knuckle-bones/messages"
+	"github.com/ascii-arcade/knuckle-bones/players"
 	"github.com/ascii-arcade/knuckle-bones/screen"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -17,44 +18,59 @@ type Model struct {
 	screen screen.Screen
 	style  lipgloss.Style
 
-	Player *games.Player
-	Game   *games.Game
+	error string
+
+	player *players.Player
+	game   *games.Game
 }
 
-func NewModel(width, height int, style lipgloss.Style, player *games.Player) Model {
+func NewModel(width, height int, style lipgloss.Style, player *players.Player) Model {
 	m := Model{
 		width:  width,
 		height: height,
 		style:  style,
-		Player: player,
+		player: player,
 	}
 
-	m.screen = m.newTableScreen()
+	m.screen = m.newLobbyScreen()
 	return m
 }
 
+func (m *Model) SetGame(game *games.Game) {
+	m.game = game
+}
+
 func (m Model) Init() tea.Cmd {
-	return waitForRefreshSignal(m.Player.UpdateChan)
+	return tea.Batch(
+		waitForRefreshSignal(m.player.UpdateChan),
+		tea.WindowSize(),
+	)
 }
 
 func (m *Model) lang() *language.Language {
-	return m.Player.LanguagePreference.Lang
+	return m.player.LanguagePreference.Lang
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	cmds := make([]tea.Cmd, 0)
 	switch msg := msg.(type) {
-	case messages.RefreshBoard:
-		return m, waitForRefreshSignal(m.Player.UpdateChan)
-
 	case tea.KeyMsg:
 		if keys.ExitApplication.TriggeredBy(msg.String()) {
-			m.Game.RemovePlayer(m.Player)
+			m.game.RemovePlayer(m.player)
 			return m, tea.Quit
 		}
+
+	case messages.SwitchScreenMsg:
+		m.screen = msg.Screen.WithModel(&m)
+		return m, nil
+
+	case messages.RefreshBoard:
+		cmds = append(cmds, waitForRefreshSignal(m.player.UpdateChan))
 	}
 
-	screenModel, cmd := m.activeScreen().Update(msg)
-	return screenModel.(*Model), cmd
+	activeScreenModel, cmd := m.activeScreen().Update(msg)
+	cmds = append(cmds, cmd)
+	return activeScreenModel.(*Model), tea.Batch(cmds...)
 }
 
 func (m Model) View() string {
@@ -69,11 +85,7 @@ func (m Model) View() string {
 }
 
 func (m *Model) activeScreen() screen.Screen {
-	if m.Game.InProgress() {
-		return m.newTableScreen()
-	} else {
-		return m.newLobbyScreen()
-	}
+	return m.screen.WithModel(m)
 }
 
 func waitForRefreshSignal(ch chan struct{}) tea.Cmd {

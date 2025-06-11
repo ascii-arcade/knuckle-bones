@@ -1,8 +1,9 @@
-package games
+package players
 
 import (
 	"context"
 
+	"github.com/ascii-arcade/knuckle-bones/dice"
 	"github.com/ascii-arcade/knuckle-bones/language"
 	"github.com/charmbracelet/ssh"
 )
@@ -12,13 +13,17 @@ type Player struct {
 	Score     int
 	TurnOrder int
 
-	isHost    bool
-	connected bool
+	Connected bool
 
 	UpdateChan         chan struct{}
 	LanguagePreference *language.LanguagePreference
 
 	Sess ssh.Session
+
+	isHost bool
+
+	Board dice.DicePool
+	Pool  dice.DicePool
 
 	onDisconnect []func()
 	ctx          context.Context
@@ -34,15 +39,14 @@ func (p *Player) SetTurnOrder(order int) *Player {
 	return p
 }
 
-func (p *Player) MakeHost() *Player {
+func (p *Player) OnDisconnect(fn func()) {
+	p.onDisconnect = append(p.onDisconnect, fn)
+}
+
+func (p *Player) MakeHost() {
 	p.isHost = true
-	return p
 }
 
 func (p *Player) IsHost() bool {
 	return p.isHost
-}
-
-func (p *Player) OnDisconnect(fn func()) {
-	p.onDisconnect = append(p.onDisconnect, fn)
 }
