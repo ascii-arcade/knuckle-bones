@@ -3,7 +3,7 @@ package score
 import (
 	"testing"
 
-	"github.com/ascii-arcade/knuckle-bones/dice"
+	"github.com/ascii-arcade/knucklebones/dice"
 )
 
 func TestCalculate(t *testing.T) {

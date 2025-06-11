@@ -3,10 +3,10 @@ package board
 import (
 	"fmt"
 
-	"github.com/ascii-arcade/knuckle-bones/colors"
-	"github.com/ascii-arcade/knuckle-bones/keys"
-	"github.com/ascii-arcade/knuckle-bones/messages"
-	"github.com/ascii-arcade/knuckle-bones/screen"
+	"github.com/ascii-arcade/knucklebones/colors"
+	"github.com/ascii-arcade/knucklebones/keys"
+	"github.com/ascii-arcade/knucklebones/messages"
+	"github.com/ascii-arcade/knucklebones/screen"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )

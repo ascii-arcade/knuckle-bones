@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"math/rand/v2"
 
-	"github.com/ascii-arcade/knuckle-bones/language"
+	"github.com/ascii-arcade/knucklebones/language"
 )
 
 func Name(lang *language.Language) string {

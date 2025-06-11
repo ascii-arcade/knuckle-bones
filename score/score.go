@@ -1,6 +1,6 @@
 package score
 
-import "github.com/ascii-arcade/knuckle-bones/dice"
+import "github.com/ascii-arcade/knucklebones/dice"
 
 func Calculate(pool []dice.DicePool) int {
 	score := 0

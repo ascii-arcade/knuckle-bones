@@ -1,4 +1,4 @@
-module github.com/ascii-arcade/knuckle-bones
+module github.com/ascii-arcade/knucklebones
 
 go 1.24.1
 

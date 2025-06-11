@@ -1,13 +1,13 @@
 package board
 
 import (
-	"github.com/ascii-arcade/knuckle-bones/config"
-	"github.com/ascii-arcade/knuckle-bones/games"
-	"github.com/ascii-arcade/knuckle-bones/keys"
-	"github.com/ascii-arcade/knuckle-bones/language"
-	"github.com/ascii-arcade/knuckle-bones/messages"
-	"github.com/ascii-arcade/knuckle-bones/players"
-	"github.com/ascii-arcade/knuckle-bones/screen"
+	"github.com/ascii-arcade/knucklebones/config"
+	"github.com/ascii-arcade/knucklebones/games"
+	"github.com/ascii-arcade/knucklebones/keys"
+	"github.com/ascii-arcade/knucklebones/language"
+	"github.com/ascii-arcade/knucklebones/messages"
+	"github.com/ascii-arcade/knucklebones/players"
+	"github.com/ascii-arcade/knucklebones/screen"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )

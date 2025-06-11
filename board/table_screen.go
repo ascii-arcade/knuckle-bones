@@ -4,10 +4,10 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/ascii-arcade/knuckle-bones/keys"
-	"github.com/ascii-arcade/knuckle-bones/messages"
-	"github.com/ascii-arcade/knuckle-bones/score"
-	"github.com/ascii-arcade/knuckle-bones/screen"
+	"github.com/ascii-arcade/knucklebones/keys"
+	"github.com/ascii-arcade/knucklebones/messages"
+	"github.com/ascii-arcade/knucklebones/score"
+	"github.com/ascii-arcade/knucklebones/screen"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )

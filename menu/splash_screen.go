@@ -1,8 +1,8 @@
 package menu
 
 import (
-	"github.com/ascii-arcade/knuckle-bones/messages"
-	"github.com/ascii-arcade/knuckle-bones/screen"
+	"github.com/ascii-arcade/knucklebones/messages"
+	"github.com/ascii-arcade/knucklebones/screen"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )

@@ -5,9 +5,9 @@ import (
 	"net/http"
 	_ "net/http/pprof"
 
-	"github.com/ascii-arcade/knuckle-bones/config"
-	"github.com/ascii-arcade/knuckle-bones/games"
-	"github.com/ascii-arcade/knuckle-bones/players"
+	"github.com/ascii-arcade/knucklebones/config"
+	"github.com/ascii-arcade/knucklebones/games"
+	"github.com/ascii-arcade/knucklebones/players"
 )
 
 func Run() error {

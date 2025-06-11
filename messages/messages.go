@@ -1,8 +1,8 @@
 package messages
 
 import (
-	"github.com/ascii-arcade/knuckle-bones/games"
-	"github.com/ascii-arcade/knuckle-bones/screen"
+	"github.com/ascii-arcade/knucklebones/games"
+	"github.com/ascii-arcade/knucklebones/screen"
 )
 
 type (

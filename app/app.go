@@ -5,13 +5,13 @@ import (
 	"github.com/charmbracelet/ssh"
 	"github.com/charmbracelet/wish/bubbletea"
 
-	"github.com/ascii-arcade/knuckle-bones/board"
-	"github.com/ascii-arcade/knuckle-bones/config"
-	"github.com/ascii-arcade/knuckle-bones/dice"
-	"github.com/ascii-arcade/knuckle-bones/language"
-	"github.com/ascii-arcade/knuckle-bones/menu"
-	"github.com/ascii-arcade/knuckle-bones/messages"
-	"github.com/ascii-arcade/knuckle-bones/players"
+	"github.com/ascii-arcade/knucklebones/board"
+	"github.com/ascii-arcade/knucklebones/config"
+	"github.com/ascii-arcade/knucklebones/dice"
+	"github.com/ascii-arcade/knucklebones/language"
+	"github.com/ascii-arcade/knucklebones/menu"
+	"github.com/ascii-arcade/knucklebones/messages"
+	"github.com/ascii-arcade/knucklebones/players"
 )
 
 type Model struct {

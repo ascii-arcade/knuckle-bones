@@ -3,8 +3,8 @@ package games
 import (
 	"sync"
 
-	"github.com/ascii-arcade/knuckle-bones/dice"
-	"github.com/ascii-arcade/knuckle-bones/players"
+	"github.com/ascii-arcade/knucklebones/dice"
+	"github.com/ascii-arcade/knucklebones/players"
 	"github.com/charmbracelet/ssh"
 )
 

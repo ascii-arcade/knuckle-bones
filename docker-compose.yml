@@ -1,10 +1,10 @@
 services:
-  wish-template:
+  knucklebones:
     build:
       context: .
       args:
         - GIT_TAG=${GIT_TAG:-dev}
-    image: ascii-arcade/wish-template:${GIT_TAG:-dev}
+    image: ascii-arcade/knucklebones:${GIT_TAG:-dev}
     ports:
       - "23234:23234"
     restart: always

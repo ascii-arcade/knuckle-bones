@@ -3,8 +3,8 @@ package players
 import (
 	"context"
 
-	"github.com/ascii-arcade/knuckle-bones/dice"
-	"github.com/ascii-arcade/knuckle-bones/language"
+	"github.com/ascii-arcade/knucklebones/dice"
+	"github.com/ascii-arcade/knucklebones/language"
 	"github.com/charmbracelet/ssh"
 )
 
