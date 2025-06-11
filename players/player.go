@@ -5,6 +5,7 @@ import (
 
 	"github.com/ascii-arcade/knucklebones/dice"
 	"github.com/ascii-arcade/knucklebones/language"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/ssh"
 )
 
@@ -17,6 +18,7 @@ type Player struct {
 
 	UpdateChan         chan struct{}
 	LanguagePreference *language.LanguagePreference
+	Color              lipgloss.Color
 
 	Sess ssh.Session
 
@@ -32,6 +34,13 @@ type Player struct {
 func (p *Player) SetName(name string) *Player {
 	p.Name = name
 	return p
+}
+
+func (p *Player) StyledPlayerName(style lipgloss.Style) string {
+	if p == nil {
+		return ""
+	}
+	return style.Foreground(p.Color).Render(p.Name)
 }
 
 func (p *Player) SetTurnOrder(order int) *Player {

@@ -1,6 +1,7 @@
 package board
 
 import (
+	"fmt"
 	"strconv"
 	"time"
 
@@ -81,24 +82,29 @@ func (s *tableScreen) Update(msg tea.Msg) (any, tea.Cmd) {
 				}
 			}
 		}
+
+		if keys.ActionRestart.TriggeredBy(msg.String()) && s.model.player.IsHost() && s.model.game.Finished {
+			s.model.game.Reset()
+		}
 	}
 
 	return s.model, nil
 }
 
 func (s *tableScreen) View() string {
-	mainPanelStyle := lipgloss.NewStyle().
+	mainPanelStyle := s.style.
 		Width(s.model.width-2).
 		Height(s.model.height-2).
 		BorderStyle(lipgloss.RoundedBorder()).
+		BorderForeground(s.model.game.GetTurnPlayer().Color).
 		Align(lipgloss.Center, lipgloss.Center)
 
 	if s.model.game.Finished {
 		content := []string{
-			s.model.lang().Get("board.game_over", s.model.game.Winner().Name),
+			fmt.Sprintf(s.model.lang().Get("board.game_over"), s.model.game.Winner().StyledPlayerName(s.style)),
 		}
 		if s.model.player.IsHost() {
-			content = append(content, s.model.lang().Get("board.reset_game", keys.ActionRestart.String(s.style)))
+			content = append(content, fmt.Sprintf(s.model.lang().Get("board.reset_game"), keys.ActionRestart.String(s.style)))
 		}
 		return mainPanelStyle.Render(
 			lipgloss.JoinVertical(
@@ -108,15 +114,14 @@ func (s *tableScreen) View() string {
 		)
 	}
 
-	boardStyle := lipgloss.NewStyle().
+	boardStyle := s.style.
 		Align(lipgloss.Center, lipgloss.Center).
 		BorderStyle(lipgloss.RoundedBorder()).
-		BorderForeground(lipgloss.Color("#fff")).
 		Margin(0).
 		Width(33).
 		Height(17)
 
-	boardPlayerStyle := lipgloss.NewStyle().
+	boardPlayerStyle := s.style.
 		Align(lipgloss.Center, lipgloss.Center).
 		Margin(0).
 		Width(33).
@@ -134,41 +139,50 @@ func (s *tableScreen) View() string {
 		),
 	)
 
-	boardBottom := boardStyle.Height(16).AlignVertical(lipgloss.Bottom).Render(
-		lipgloss.JoinVertical(
-			lipgloss.Center,
-			lipgloss.JoinHorizontal(
+	boardBottom := boardStyle.
+		Height(16).
+		AlignVertical(lipgloss.Bottom).
+		Render(
+			lipgloss.JoinVertical(
 				lipgloss.Center,
-				me.Board[0].Render(false),
-				me.Board[1].Render(false),
-				me.Board[2].Render(false),
+				lipgloss.JoinHorizontal(
+					lipgloss.Center,
+					me.Board[0].Render(false),
+					me.Board[1].Render(false),
+					me.Board[2].Render(false),
+				),
+				lipgloss.JoinHorizontal(
+					lipgloss.Center,
+					lipgloss.PlaceHorizontal(9, lipgloss.Center, "1"),
+					lipgloss.PlaceHorizontal(9, lipgloss.Center, "2"),
+					lipgloss.PlaceHorizontal(9, lipgloss.Center, "3"),
+				),
 			),
-			lipgloss.JoinHorizontal(
+		)
+
+	theirBoard := boardPlayerStyle.
+		Height(33).
+		BorderForeground(them.Color).
+		Render(
+			lipgloss.JoinVertical(
 				lipgloss.Center,
-				lipgloss.PlaceHorizontal(9, lipgloss.Center, "1"),
-				lipgloss.PlaceHorizontal(9, lipgloss.Center, "2"),
-				lipgloss.PlaceHorizontal(9, lipgloss.Center, "3"),
+				them.StyledPlayerName(s.style),
+				strconv.Itoa(score.Calculate(them.Board)),
+				them.Pool.Render(false),
 			),
-		),
-	)
+		)
 
-	theirBoard := boardPlayerStyle.Height(33).Render(
-		lipgloss.JoinVertical(
-			lipgloss.Center,
-			them.Name,
-			strconv.Itoa(score.Calculate(them.Board)),
-			them.Pool.Render(false),
-		),
-	)
-
-	myBoard := boardPlayerStyle.Height(33).Render(
-		lipgloss.JoinVertical(
-			lipgloss.Center,
-			me.Pool.Render(false),
-			me.Name,
-			strconv.Itoa(score.Calculate(me.Board)),
-		),
-	)
+	myBoard := boardPlayerStyle.
+		Height(33).
+		BorderForeground(me.Color).
+		Render(
+			lipgloss.JoinVertical(
+				lipgloss.Center,
+				me.Pool.Render(false),
+				me.StyledPlayerName(s.style),
+				strconv.Itoa(score.Calculate(me.Board)),
+			),
+		)
 
 	mainPanel := mainPanelStyle.Render(
 		lipgloss.JoinHorizontal(

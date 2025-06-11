@@ -6,6 +6,7 @@ import (
 	"github.com/ascii-arcade/knucklebones/dice"
 	"github.com/ascii-arcade/knucklebones/generaterandom"
 	"github.com/ascii-arcade/knucklebones/language"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/ssh"
 )
 
@@ -46,6 +47,7 @@ func NewPlayer(ctx context.Context, sess ssh.Session, langPref *language.Languag
 		UpdateChan:         make(chan struct{}),
 		Board:              board,
 		Pool:               make(dice.DicePool, 1),
+		Color:              lipgloss.Color(generaterandom.Color()),
 		LanguagePreference: langPref,
 		Sess:               sess,
 		Connected:          true,

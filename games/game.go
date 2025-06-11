@@ -225,6 +225,38 @@ func (g *Game) PlaceDie(p *players.Player, column int) error {
 	})
 }
 
+func (g *Game) Winner() *players.Player {
+	if !g.Finished {
+		return nil
+	}
+
+	pOneScore := score.Calculate(g.PlayerOne.Board)
+	pTwoScore := score.Calculate(g.PlayerTwo.Board)
+	if pOneScore > pTwoScore {
+		return g.PlayerOne
+	}
+
+	return g.PlayerTwo
+}
+
+func (g *Game) Reset() {
+	g.withLock(func() {
+		g.PlayerOne.Board = make([]dice.DicePool, 3)
+		g.PlayerTwo.Board = make([]dice.DicePool, 3)
+		for i := range g.PlayerOne.Board {
+			g.PlayerOne.Board[i] = make(dice.DicePool, 3)
+			g.PlayerTwo.Board[i] = make(dice.DicePool, 3)
+		}
+
+		g.PlayerOne.Pool = make(dice.DicePool, 1)
+		g.PlayerTwo.Pool = make(dice.DicePool, 1)
+
+		g.rolled = false
+		g.Finished = false
+		g.turn = 0
+	})
+}
+
 func nextSpot(pool dice.DicePool) int {
 	for i, face := range pool {
 		if face == 0 {
@@ -249,18 +281,4 @@ func removeSame(column dice.DicePool, face int) {
 			column[i] = 0 // Remove the die by setting it to 0
 		}
 	}
-}
-
-func (g *Game) Winner() *players.Player {
-	if !g.Finished {
-		return nil
-	}
-
-	pOneScore := score.Calculate(g.PlayerOne.Board)
-	pTwoScore := score.Calculate(g.PlayerTwo.Board)
-	if pOneScore > pTwoScore {
-		return g.PlayerOne
-	}
-
-	return g.PlayerTwo
 }
