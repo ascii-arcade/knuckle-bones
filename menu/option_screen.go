@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/ascii-arcade/knucklebones/config"
 	"github.com/ascii-arcade/knucklebones/games"
 	"github.com/ascii-arcade/knucklebones/keys"
 	"github.com/ascii-arcade/knucklebones/language"
@@ -76,6 +77,9 @@ func (s *optionScreen) View() string {
 	} else if s.model.lang() == language.Languages["ES"] {
 		content.WriteString(fmt.Sprintf(language.Languages["EN"].Get("menu", "choose_language"), keys.MenuEnglish.String(s.style)))
 	}
+
+	content.WriteString("\n\n")
+	content.WriteString(s.style.Foreground(lipgloss.Color("#555555")).Render(config.Version))
 
 	return content.String()
 }
