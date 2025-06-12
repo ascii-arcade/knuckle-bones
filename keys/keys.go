@@ -8,6 +8,23 @@ import (
 
 type Keys []string
 
+var (
+	MenuJoinGame     = Keys{"j"}
+	MenuStartNewGame = Keys{"n"}
+	MenuEnglish      = Keys{"1"}
+	MenuSpanish      = Keys{"2"}
+
+	PreviousScreen = Keys{"esc"}
+	Submit         = Keys{"enter"}
+
+	ExitApplication = Keys{"ctrl+c"}
+	LobbyStartGame  = Keys{"s"}
+
+	ActionRoll         = Keys{"r"}
+	ActionRestart      = Keys{"r"}
+	ActionSelectColumn = Keys{"1", "2", "3"}
+)
+
 func (k Keys) TriggeredBy(msg string) bool {
 	return slices.Contains(k, msg)
 }
@@ -22,20 +39,3 @@ func (k Keys) IndexedString(index int, style lipgloss.Style) string {
 	}
 	return style.Bold(true).Italic(true).Render("'" + k[index] + "'")
 }
-
-var (
-	MenuJoinGame     = Keys{"j"}
-	MenuStartNewGame = Keys{"n"}
-	MenuEnglish      = Keys{"1"}
-	MenuSpanish      = Keys{"2"}
-
-	PreviousScreen = Keys{"esc"}
-	Submit         = Keys{"enter"}
-
-	ExitApplication = Keys{"ctrl+c"}
-	LobbyStartGame  = Keys{"s"}
-
-	ActionRoll         = Keys{"r"}
-	ActionRestart      = Keys{"space"}
-	ActionSelectColumn = Keys{"1", "2", "3"}
-)

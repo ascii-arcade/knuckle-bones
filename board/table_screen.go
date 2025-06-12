@@ -100,11 +100,14 @@ func (s *tableScreen) View() string {
 		Align(lipgloss.Center, lipgloss.Center)
 
 	if s.model.game.Finished {
+		mainPanelStyle = mainPanelStyle.
+			BorderForeground(s.model.player.Color)
+
 		content := []string{
-			fmt.Sprintf(s.model.lang().Get("board.game_over"), s.model.game.Winner().StyledPlayerName(s.style)),
+			fmt.Sprintf(s.model.lang().Get("board", "game_over"), s.model.game.Winner().StyledPlayerName(s.style)),
 		}
 		if s.model.player.IsHost() {
-			content = append(content, fmt.Sprintf(s.model.lang().Get("board.reset_game"), keys.ActionRestart.String(s.style)))
+			content = append(content, fmt.Sprintf(s.model.lang().Get("board", "reset_game"), keys.ActionRestart.String(s.style)))
 		}
 		return mainPanelStyle.Render(
 			lipgloss.JoinVertical(
